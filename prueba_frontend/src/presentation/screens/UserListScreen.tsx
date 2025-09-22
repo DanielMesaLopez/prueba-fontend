@@ -44,6 +44,12 @@ export default function UserListScreen() {
       user.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const FinalPageText = styled.Text`
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+  `;
+
   if (loading || showLoader) return <Loader />;
 
   return (
@@ -77,9 +83,13 @@ export default function UserListScreen() {
 
           <PageIndicator>Página {page}</PageIndicator>
 
-          <PaginationButton disabled={!hasMore} onPress={loadMore}>
-            <PaginationText>Siguiente</PaginationText>
-          </PaginationButton>
+          {hasMore ? (
+            <PaginationButton onPress={loadMore}>
+              <PaginationText>Siguiente</PaginationText>
+            </PaginationButton>
+          ) : (
+            <FinalPageText>Última página</FinalPageText>
+          )}
         </PaginationContainer>
       )}
     </Container>

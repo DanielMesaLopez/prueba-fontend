@@ -31,18 +31,25 @@ export const useUserStore = create<UserState>((set, get) => ({
     try {
       const data = await getUsers({ page, limit, search });
 
-      // 🔑 Solo actualiza si hay datos o si es la primera página
-      if (data.length > 0 || page === 1) {
+      if (data.length > 0) {
         set({
           users: data,
-          hasMore: data.length === limit, // hay más solo si el lote está completo
+          hasMore: data.length === limit,
         });
       } else {
-        // Si no hay datos y no es la página 1, vuelve a la página anterior
-        set((state) => ({
-          page: Math.max(state.page - 1, 1),
+        // Si no hay datos en la página actual, retrocede y vuelve a intentar
+        const previousPage = Math.max(page - 1, 1);
+        const fallbackData = await getUsers({
+          page: previousPage,
+          limit,
+          search,
+        });
+
+        set({
+          page: previousPage,
+          users: fallbackData,
           hasMore: false,
-        }));
+        });
       }
     } catch (err) {
       set({ error: "Error al cargar usuarios" });
@@ -50,12 +57,15 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ loading: false });
     }
   },
+
   setSearch: (term: string) => {
     set({ search: term, page: 1 });
   },
+
   loadMore: async () => {
-    if (!get().hasMore) return;
-    set({ page: get().page + 1 });
+    const { hasMore, page } = get();
+    if (!hasMore) return;
+    set({ page: page + 2 });
     await get().fetchAll(false);
   },
 
