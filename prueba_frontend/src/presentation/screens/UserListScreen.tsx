@@ -6,10 +6,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
 import { useUserStore } from "../../store/userStore";
 import UserCard from "../components/UserCard";
+import Loader from "../components/Loader";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "UserList">;
 
 export default function UserListScreen() {
+  const [showLoader, setShowLoader] = useState(true);
   const navigation = useNavigation<NavigationProp>();
   const {
     users,
@@ -20,7 +22,17 @@ export default function UserListScreen() {
     loadMore,
     page,
     loadPrevious,
+    loading,
   } = useUserStore();
+
+  // tiempo de ejecucion del loader
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowLoader(false);
+    }, 3000); // 3 segundos
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     fetchAll(true);
@@ -29,6 +41,8 @@ export default function UserListScreen() {
   useEffect(() => {
     fetchAll(true);
   }, [search]);
+
+  if (loading || showLoader) return <Loader />;
 
   return (
     <Container>

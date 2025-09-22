@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useUserStore } from "../../store/userStore";
+import Loader from "../components/Loader";
 
 export default function UserDetailScreen() {
   const route = useRoute();
@@ -9,8 +10,19 @@ export default function UserDetailScreen() {
   const { users } = useUserStore();
   const { userId } = route.params as { userId: number };
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Simula carga de 1 segundo
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   const user = users.find((u) => u.id === userId);
 
+  if (loading) return <Loader />;
   if (!user) return <CenteredText>Usuario no encontrado</CenteredText>;
 
   return (
