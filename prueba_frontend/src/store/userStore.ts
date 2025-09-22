@@ -68,7 +68,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   loadMore: async () => {
     const { hasMore, page } = get();
     if (!hasMore) return;
-    set({ page: page + 2 });
+    set({ page: page + 1 });
     await get().fetchAll(false);
   },
 
