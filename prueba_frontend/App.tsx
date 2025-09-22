@@ -15,8 +15,16 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="UserList">
-        <Stack.Screen name="UserList" component={UserListScreen} />
-        <Stack.Screen name="UserDetail" component={UserDetailScreen} />
+        <Stack.Screen
+          name="UserList"
+          component={UserListScreen}
+          options={{ title: "Lista de usuarios" }} // 👈 Aquí cambias el título
+        />
+        <Stack.Screen
+          name="UserDetail"
+          component={UserDetailScreen}
+          options={{ title: "Detalle del usuario" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
