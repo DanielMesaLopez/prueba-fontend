@@ -38,9 +38,11 @@ export default function UserListScreen() {
     fetchAll(true);
   }, []);
 
-  useEffect(() => {
-    fetchAll(true);
-  }, [search]);
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   if (loading || showLoader) return <Loader />;
 
@@ -53,7 +55,7 @@ export default function UserListScreen() {
       />
 
       <FlatList
-        data={users}
+        data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <UserCard

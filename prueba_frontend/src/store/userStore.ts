@@ -52,7 +52,6 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   setSearch: (term: string) => {
     set({ search: term, page: 1 });
-    get().fetchAll(true);
   },
   loadMore: async () => {
     if (!get().hasMore) return;
