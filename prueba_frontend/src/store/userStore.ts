@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getUsers } from "../application/user/getUsers";
 import { User } from "../domain/user";
+import { saveUsersToCache } from "./storage";
 
 interface UserState {
   users: User[];
@@ -36,6 +37,8 @@ export const useUserStore = create<UserState>((set, get) => ({
           users: data,
           hasMore: data.length === limit,
         });
+        await saveUsersToCache(data); // guarda en caché
+        console.log("Guardando caché para página", data);
       } else {
         // Si no hay datos en la página actual, retrocede y vuelve a intentar
         const previousPage = Math.max(page - 1, 1);

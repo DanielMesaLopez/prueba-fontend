@@ -18,7 +18,7 @@ export default function App() {
         <Stack.Screen
           name="UserList"
           component={UserListScreen}
-          options={{ title: "Lista de usuarios" }} // 👈 Aquí cambias el título
+          options={{ title: "Lista de usuarios" }} //Aquí cambias el título
         />
         <Stack.Screen
           name="UserDetail"
