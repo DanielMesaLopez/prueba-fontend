@@ -13,6 +13,7 @@ interface UserState {
   fetchAll: (reset?: boolean) => Promise<void>;
   setSearch: (term: string) => void;
   loadMore: () => Promise<void>;
+  loadPrevious: () => Promise<void>;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -20,7 +21,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   loading: false,
   error: null,
   page: 1,
-  limit: 5, // default: 5 usuarios por página
+  limit: 5,
   hasMore: true,
   search: "",
   fetchAll: async (reset = true) => {
@@ -29,10 +30,20 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     try {
       const data = await getUsers({ page, limit, search });
-      set((state) => ({
-        users: reset ? data : [...state.users, ...data],
-        hasMore: data.length === limit,
-      }));
+
+      // 🔑 Solo actualiza si hay datos o si es la primera página
+      if (data.length > 0 || page === 1) {
+        set({
+          users: data,
+          hasMore: data.length === limit, // hay más solo si el lote está completo
+        });
+      } else {
+        // Si no hay datos y no es la página 1, vuelve a la página anterior
+        set((state) => ({
+          page: Math.max(state.page - 1, 1),
+          hasMore: false,
+        }));
+      }
     } catch (err) {
       set({ error: "Error al cargar usuarios" });
     } finally {
@@ -40,12 +51,20 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
   setSearch: (term: string) => {
-    set({ search: term, page: 1 }); // Reinicia a la página 1
+    set({ search: term, page: 1 });
     get().fetchAll(true);
   },
   loadMore: async () => {
     if (!get().hasMore) return;
     set({ page: get().page + 1 });
+    await get().fetchAll(false);
+  },
+
+  loadPrevious: async () => {
+    const { page } = get();
+    if (page <= 1) return;
+
+    set({ page: page - 1 });
     await get().fetchAll(false);
   },
 }));
