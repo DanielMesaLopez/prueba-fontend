@@ -203,3 +203,42 @@ test("loadPrevious no hace nada si está en página 1", async () => {
   expect(store.page).toBe(1);
   expect(fetchSpy).not.toHaveBeenCalled();
 });
+
+describe("useUserStore - loadMore", () => {
+  it("debe incrementar la página y llamar a fetchAll cuando hasMore es true", async () => {
+    // 🅰️ Arrange
+    const store = useUserStore.getState();
+    const fetchAllMock = jest.fn();
+    store.fetchAll = fetchAllMock;
+    store.page = 1;
+    store.hasMore = true;
+
+    // 🅰️ Act
+    await act(async () => {
+      await store.loadMore();
+    });
+
+    // 🅰️ Assert
+    expect(useUserStore.getState().page).toBe(2); // la página incrementa
+    expect(fetchAllMock).toHaveBeenCalledTimes(1);
+    expect(fetchAllMock).toHaveBeenCalledWith(false);
+  });
+
+  it("no debe hacer nada cuando hasMore es false", async () => {
+    // 🅰️ Arrange
+    const store = useUserStore.getState();
+    const fetchAllMock = jest.fn();
+    store.fetchAll = fetchAllMock;
+    store.page = 1;
+    store.hasMore = false;
+
+    // 🅰️ Act
+    await act(async () => {
+      await store.loadMore();
+    });
+
+    // 🅰️ Assert
+    expect(useUserStore.getState().page).toBe(1); // no cambia la página
+    expect(fetchAllMock).not.toHaveBeenCalled();
+  });
+});

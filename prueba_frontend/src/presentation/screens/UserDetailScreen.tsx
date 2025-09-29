@@ -3,6 +3,7 @@ import styled from "styled-components/native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useUserStore } from "../../store/userStore";
 import Loader from "../components/Loader";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 export default function UserDetailScreen() {
   const route = useRoute();
@@ -11,6 +12,7 @@ export default function UserDetailScreen() {
   const { userId } = route.params as { userId: number };
 
   const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -26,7 +28,10 @@ export default function UserDetailScreen() {
   if (!user) return <CenteredText>Usuario no encontrado</CenteredText>;
 
   return (
-    <Container>
+    <Container darkMode={darkMode}>
+      <Header>
+        <DarkModeToggle onToggle={setDarkMode} />
+      </Header>
       <Card>
         <Avatar
           source={{
@@ -49,11 +54,12 @@ export default function UserDetailScreen() {
   );
 }
 
-const Container = styled.View`
+const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: #f7f7f7;
+  background-color: ${(props: { darkMode: any }) =>
+    props.darkMode ? "#121212" : "#f5f5f5"};
   padding: 16px;
 `;
 
@@ -107,4 +113,11 @@ const BackButtonText = styled.Text`
 const CenteredText = styled.Text`
   text-align: center;
   margin-top: 20px;
+`;
+
+const Header = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 `;

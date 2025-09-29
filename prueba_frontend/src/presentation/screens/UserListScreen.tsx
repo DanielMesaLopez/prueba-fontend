@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, View, Text } from "react-native";
 import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,11 +7,14 @@ import { RootStackParamList } from "../../navigation/types";
 import { useUserStore } from "../../store/userStore";
 import UserCard from "../components/UserCard";
 import Loader from "../components/Loader";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "UserList">;
 
 export default function UserListScreen() {
   const [showLoader, setShowLoader] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+
   const navigation = useNavigation<NavigationProp>();
   const {
     users,
@@ -25,12 +28,11 @@ export default function UserListScreen() {
     loading,
   } = useUserStore();
 
-  // tiempo de ejecucion del loader
+  // loader inicial
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowLoader(false);
-    }, 3000); // 3 segundos
-
+    }, 3000);
     return () => clearTimeout(timeout);
   }, []);
 
@@ -46,20 +48,27 @@ export default function UserListScreen() {
 
   const FinalPageText = styled.Text`
     font-size: 14px;
-    color: #666;
+    color: ${darkMode ? "#aaa" : "#666"};
     font-style: italic;
   `;
 
   if (loading || showLoader) return <Loader />;
 
   return (
-    <Container>
-      <SearchInput
-        placeholder="Buscar por nombre o email"
-        value={search}
-        onChangeText={(text: string) => setSearch(text)}
-      />
+    <Container darkMode={darkMode}>
+      {/* Header con buscador + toggle */}
+      <Header>
+        <SearchInput
+          placeholder="Buscar por nombre o email"
+          placeholderTextColor={darkMode ? "#ccc" : "#999"}
+          value={search}
+          onChangeText={(text: string) => setSearch(text)}
+          darkMode={darkMode}
+        />
+        <DarkModeToggle onToggle={setDarkMode} />
+      </Header>
 
+      {/* Lista */}
       <FlatList
         data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
@@ -73,6 +82,7 @@ export default function UserListScreen() {
         )}
       />
 
+      {/* Paginación */}
       {users.length > 0 && (
         <PaginationContainer>
           {page > 1 && (
@@ -81,7 +91,7 @@ export default function UserListScreen() {
             </PaginationButton>
           )}
 
-          <PageIndicator>Página {page}</PageIndicator>
+          <PageIndicator darkMode={darkMode}>Página {page}</PageIndicator>
 
           {hasMore ? (
             <PaginationButton onPress={loadMore}>
@@ -96,18 +106,30 @@ export default function UserListScreen() {
   );
 }
 
-const Container = styled.View`
+const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
-  background-color: #f5f5f5;
+  background-color: ${(props: { darkMode: any }) =>
+    props.darkMode ? "#121212" : "#f5f5f5"};
   padding: 16px;
 `;
 
-const SearchInput = styled.TextInput`
-  background-color: white;
+const Header = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
+const SearchInput = styled.TextInput<{ darkMode: boolean }>`
+  background-color: ${(props: { darkMode: any }) =>
+    props.darkMode ? "#222" : "white"};
+  color: ${(props: { darkMode: any }) => (props.darkMode ? "white" : "black")};
+  flex: 1;
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid
+    ${(props: { darkMode: any }) => (props.darkMode ? "#444" : "#ddd")};
+  margin-right: 10px;
 `;
 
 const PaginationContainer = styled.View`
@@ -130,7 +152,8 @@ const PaginationText = styled.Text`
   font-weight: bold;
 `;
 
-const PageIndicator = styled.Text`
+const PageIndicator = styled.Text<{ darkMode: boolean }>`
   font-size: 16px;
   font-weight: bold;
+  color: ${(props: { darkMode: any }) => (props.darkMode ? "white" : "black")};
 `;
